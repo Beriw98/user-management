@@ -1,5 +1,39 @@
-### GET request to example server
-GET https://examples.http-client.intellij.net/get
-    ?generated-in=IntelliJ IDEA
+@user_id = cud9a6h7lsoc73cami4g
 
-###
+### Get users
+GET localhost:8080/users?limit=10&page=0
+
+### Get user by id
+GET localhost:8080/users/{{user_id}}
+
+### Create user
+POST localhost:8080/users
+Content-Type: application/json
+
+{
+  "name": "John",
+  "surname": "Doe",
+  "email": "johndoe1@gmail.com",
+  "password": "password"
+}
+
+### Update user
+PUT localhost:8080/users/{{user_id}}
+Content-Type: application/json
+
+{
+  "name": "Jane",
+  "surname": "Doe",
+  "email": "janedoe@gmail.com"
+}
+
+### Update user password
+PATCH localhost:8080/users/{{user_id}}/password
+Content-Type: application/json
+
+{
+  "password": "1Password."
+}
+
+### Delete user
+DELETE localhost:8080/users/{{user_id}}

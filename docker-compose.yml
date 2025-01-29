@@ -1,0 +1,40 @@
+services:
+  app:
+    build:
+        context: .
+        dockerfile: Dockerfile
+    ports:
+        - "8080:8080"
+    environment:
+      DATABASE_URI: "host=db user=postgres password=postgres database=user_management port=5432"
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+  db:
+    image: postgres:15
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: user_management
+    command: postgres -c 'max_connections=1000'
+    ports:
+        - "6544:5432"
+    volumes:
+      - db-data:/var/lib/postgresql/data
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U postgres -d user_management" ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  migrate:
+    image: migrate/migrate
+    volumes:
+      - ./migrations:/migrations
+    command: "-path=/migrations/ -database postgres://postgres:postgres@db:5432/user_management?sslmode=disable up"
+    depends_on:
+      db:
+        condition: service_healthy
+
+volumes:
+    db-data:

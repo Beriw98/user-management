@@ -1,0 +1,143 @@
+@base_url = http://localhost:8080
+
+### Create User 1
+POST {{base_url}}/users
+Content-Type: application/json
+
+{
+  "name": "John",
+  "surname": "Doe",
+  "email": "johndoe@gmail.com",
+  "password": "password"
+}
+
+> {%
+    client.test("Request executed successfully", function () {
+        client.assert(response.status == 201)
+
+        client.global.set("user1_id", response.body.id)
+    });
+%}
+
+### Get User 1 by ID
+GET {{base_url}}/users/{{user1_id}}
+
+> {%
+    client.test("Request executed successfully", function () {
+        client.assert(response.status == 200)
+        client.assert(response.body.id == client.global.get("user1_id"))
+        client.assert(response.body.name == "John")
+    });
+%}
+
+### Create User 2
+POST {{base_url}}/users
+Content-Type: application/json
+
+{
+  "name": "Alice",
+  "surname": "Smith",
+  "email": "alicesmith@gmail.com",
+  "password": "password"
+}
+
+> {%
+    client.test("Request executed successfully", function () {
+        client.assert(response.status == 201)
+
+        client.global.set("user2_id", response.body.id)
+    });
+%}
+
+### Get All Users
+GET {{base_url}}/users?limit=10&offset=0
+
+> {%
+    client.test("Request executed successfully", function () {
+        client.assert(response.status == 200)
+        client.assert(response.body.length > 0)
+    });
+%}
+
+### Get First User using limit & page
+GET {{base_url}}/users?limit=1&page=0
+
+> {%
+    client.test("Request executed successfully", function () {
+        client.assert(response.status == 200)
+        client.assert(response.body[0].id == client.global.get("user1_id"))
+    });
+%}
+
+
+### Get Second User using limit & page
+GET {{base_url}}/users?limit=1&page=1
+
+> {%
+    client.test("Request executed successfully", function () {
+        client.assert(response.status == 200)
+        client.assert(response.body[0].id == client.global.get("user2_id"))
+    });
+%}
+
+
+### Update User 1's Name
+PUT {{base_url}}/users/{{user1_id}}
+Content-Type: application/json
+
+{
+  "name": "Jane",
+  "surname": "Doe",
+  "email": "janedoe@gmail.com"
+}
+
+> {%
+    client.test("Request executed successfully", function () {
+        client.assert(response.status == 200)
+    });
+%}
+
+### Verify User 1's Updated Name
+GET {{base_url}}/users/{{user1_id}}
+
+> {%
+    client.test("Request executed successfully", function () {
+        client.assert(response.status == 200)
+    });
+%}
+
+### Delete User 1
+DELETE {{base_url}}/users/{{user1_id}}
+
+> {%
+    client.test("Request executed successfully", function () {
+        client.assert(response.status == 204)
+    });
+%}
+
+### Delete User 2
+DELETE {{base_url}}/users/{{user2_id}}
+
+> {%
+    client.test("Request executed successfully", function () {
+        client.assert(response.status == 204)
+    });
+%}
+
+### Verify User 1 Deletion (Should Fail)
+GET {{base_url}}/users/{{user1_id}}
+
+> {%
+    client.test("Request executed successfully", function () {
+        client.assert(response.status == 404)
+    });
+%}
+
+### Verify User 2 Deletion (Should Fail)
+GET {{base_url}}/users/{{user2_id}}
+
+> {%
+    client.test("Request executed successfully", function () {
+        client.assert(response.status == 404)
+    });
+%}

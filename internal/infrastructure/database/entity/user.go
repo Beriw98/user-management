@@ -1,4 +1,4 @@
-package schema
+package entity
 
 import (
 	"entgo.io/ent"
@@ -13,7 +13,8 @@ type User struct {
 // Fields of the User.
 func (User) Fields() []ent.Field {
 	return []ent.Field{
-		field.String("id").Default(xid.New().String()),
+		field.String("id").
+			Default(xid.New().String()),
 		field.String("name"),
 		field.String("surname"),
 		field.String("email").
@@ -22,9 +23,4 @@ func (User) Fields() []ent.Field {
 		field.String("password").
 			NotEmpty(),
 	}
-}
-
-// Edges of the User.
-func (User) Edges() []ent.Edge {
-	return nil
 }

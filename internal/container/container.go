@@ -1,17 +1,19 @@
-package internal
+package container
 
 import (
 	"context"
+	"log/slog"
+	"os"
+
 	"entgo.io/ent/dialect"
 	"entgo.io/ent/dialect/sql"
+	"github.com/jackc/pgx/v5/pgxpool"
+	"github.com/jackc/pgx/v5/stdlib"
+
 	"github.com/Beriw98/user-management/ent"
 	"github.com/Beriw98/user-management/internal/config"
 	"github.com/Beriw98/user-management/internal/infrastructure/database/repository"
 	"github.com/Beriw98/user-management/internal/infrastructure/httpsrv/handler"
-	"github.com/jackc/pgx/v5/pgxpool"
-	"github.com/jackc/pgx/v5/stdlib"
-	"log/slog"
-	"os"
 )
 
 type Container struct {
@@ -23,8 +25,14 @@ type Container struct {
 
 func NewContainer(cfg *config.Config) (*Container, error) {
 	ctx := context.Background()
+	pgPoolCfg, err := pgxpool.ParseConfig(cfg.DatabaseURI)
+	if err != nil {
+		return nil, err
+	}
 
-	pool, err := pgxpool.New(ctx, cfg.DatabaseURI)
+	pgPoolCfg.MaxConns = 100
+
+	pool, err := pgxpool.NewWithConfig(ctx, pgPoolCfg)
 	if err != nil {
 		return nil, err
 	}

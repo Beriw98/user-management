@@ -1,12 +1,11 @@
 @base_url = http://localhost:8080
 
-### Try Creating User Without a Name
+### Try Creating User Without a email
 POST {{base_url}}/users
 Content-Type: application/json
 
 {
   "surname": "Doe",
-  "email": "noname@gmail.com",
   "password": "password"
 }
 

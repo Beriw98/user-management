@@ -1,0 +1,45 @@
+@base_url = http://localhost:8080
+
+### Create User
+POST {{base_url}}/users
+Content-Type: application/json
+
+{
+  "name": "John",
+  "surname": "Doe",
+  "email": "duplicate@gmail.com",
+  "password": "password"
+}
+
+> {%
+    client.test("Request executed successfully", function () {
+        client.assert(response.status == 201)
+        client.global.set("duplicate_user_id", response.body.id)
+    });
+%}
+
+### Try Creating User with the Same Email
+POST {{base_url}}/users
+Content-Type: application/json
+
+{
+  "name": "Jane",
+  "surname": "Doe",
+  "email": "duplicate@gmail.com",
+  "password": "password123"
+}
+
+> {%
+    client.test("Email already exists", function () {
+        client.assert(response.status == 409)
+    });
+%}
+
+### Clean up - Delete Duplicate User
+DELETE {{base_url}}/users/{{duplicate_user_id}}
+
+> {%
+    client.test("Duplicate user deleted", function () {
+        client.assert(response.status == 204)
+    });
+%}
